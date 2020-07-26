@@ -36,14 +36,21 @@ class AuthError(Exception):
 
 def get_token_auth_header():
 
-    auth_headers = request.headers['Authorization']
-    auth_parts = auth_headers.split(' ')
-    if len(auth_parts) != 2 or auth_parts[0].lower() != 'bearer':
+    auth_headers, auth_parts = None, None
+
+    if 'Authorization' in request.headers:
+        auth_headers = request.headers['Authorization']
+    if auth_headers:
+        auth_parts = auth_headers.split(' ')
+    if auth_parts is not None and len(auth_parts) == 2 and \
+            auth_parts[0].lower() == 'bearer':
+
+        return auth_parts[1]
+
+    else:
         raise AuthError({'code': 'invalid header',
                         'description': 'Authorization header is malformed'},
                         401)
-
-    return auth_parts[1]
 
 
 '''
@@ -146,7 +153,7 @@ def verify_decode_jwt(token):
             raise AuthError({
                 'code': 'invalid_header',
                 'description': 'Unable to parse authentication token.'
-            }, 401)
+            }, 400)
     raise AuthError({
                 'code': 'invalid_header',
                 'description': 'Unable to find the appropriate key.'
