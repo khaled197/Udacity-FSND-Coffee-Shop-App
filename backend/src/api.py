@@ -95,9 +95,11 @@ def get_drinks_details():
 def post_drinks():
 
     drink = None
-    title = request.get_json()['title']
-    recipe = request.get_json()['recipe']
-    if title is None or recipe is None:
+    body = request.get_json()
+    if 'title' in body and 'recipe' in body:
+        title = request.get_json()['title']
+        recipe = request.get_json()['recipe']
+    else:
         abort(400)
 
     try:
